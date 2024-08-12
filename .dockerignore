@@ -1,0 +1,58 @@
+# Ignore Python cache and build files
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore environment files
+.env
+.venv
+env
+venv
+ENV
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Ignore Great Expectations specific uncommitted files
+great_expectations/uncommitted/
+great_expectations/.git/
+great_expectations/checkpoints/*.yml
+great_expectations/expectations/*.json
+great_expectations/validations/
+
+# Ignore distribution/build files
+build/
+dist/
+*.egg-info/
+.eggs/
+lib/
+lib64/
+wheels/
+
+# Ignore test and coverage reports
+.coverage
+.tox/
+.nox/
+.cache
+pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+test-results/
+
+# Ignore Dockerfile itself
+Dockerfile
+
+# Ignore Git files
+.git
+.gitignore
+
+# Ignore Node modules (if any)
+node_modules/

@@ -1,0 +1,9 @@
+great_expectations==0.18.12
+boto3==1.26.33
+botocore==1.29.33
+PyAthena[SQLAlchemy]==3.7.0
+SQLAlchemy==1.4.52
+croniter==2.0.1
+python-dotenv==1.0.1
+pydantic==2.7.0
+pydantic-settings==2.2.1
