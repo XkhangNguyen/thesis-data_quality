@@ -1,0 +1,3 @@
+name: staging_postgres
+type: sql
+connection_string: postgresql://stagingDB:thesis9050Khang@host.docker.internal:6001/thesis

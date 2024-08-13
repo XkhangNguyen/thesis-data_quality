@@ -103,4 +103,3 @@ def handle_job_data(job_data: dict) -> Job:
         suite = select_suite(run["suite"])
         runs.append(Run(data_assets=data_assets, suite=suite))
     return Job(name=job_data.get("name"), runs=runs, tags=job_data.get("tags"))
-4

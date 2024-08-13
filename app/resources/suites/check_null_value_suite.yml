@@ -1,0 +1,14 @@
+name: check_null_value
+expectations:
+  - expectation_type: expect_column_values_to_not_be_null
+    kwargs:
+      column: house_id
+  - expectation_type: expect_column_values_to_not_be_null
+    kwargs:
+      column: location
+  - expectation_type: expect_column_values_to_not_be_null
+    kwargs:
+      column: area
+  - expectation_type: expect_column_values_to_not_be_null
+    kwargs:
+      column: price

@@ -1,0 +1,10 @@
+name: mogi_info
+type: sql
+data_assets:
+  - name: just_scraped
+    query: |
+      SELECT *
+      FROM
+       public.mogi_house_info
+      WHERE scraped_at = CURRENT_DATE
+

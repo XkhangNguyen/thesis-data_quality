@@ -5,6 +5,7 @@ import yaml
 import argparse
 
 import great_expectations as gx
+from great_expectations.data_context import FileDataContext
 from great_expectations.core.expectation_suite import ExpectationConfiguration
 from great_expectations.exceptions.exceptions import (
     InvalidExpectationConfigurationError,
@@ -41,7 +42,7 @@ def load_context(project_path, runtime_environment=None):
     )
 
 
-def load_data_source(context, env):
+def load_data_source(context: FileDataContext, ds_name):
     """
     Loads the data source.
 
@@ -50,11 +51,11 @@ def load_data_source(context, env):
         env (str): The environment.
     """
     data_source_path = os.path.join(
-        project_path, "resources/data_sources", f"{env}_athena.yml"
+        project_path, "resources/data_sources", f"{ds_name}.yml"
     )
     with open(data_source_path, "r") as file:
         data_source_params = yaml.safe_load(file)
-    return context.sources.add_or_update_sql(
+    return context.sources.add_or_update_postgres(
         data_source_params["name"],
         connection_string=data_source_params["connection_string"],
     )
@@ -97,9 +98,7 @@ def log_jobs_run(jobs: List[Job]):
     logger.info("%s", "========================================================")
 
 
-def build_validations(
-    context, data_source, jobs: Union[Job, List[Job]], start_date: str, end_date: str
-):
+def build_validations(context, data_source, jobs: Union[Job, List[Job]]):
     """
     Builds validations for the given jobs.
 
@@ -107,8 +106,6 @@ def build_validations(
         context: The Great Expectations context.
         data_source: The data source.
         jobs (Union[Job, List[Job]]): The job or list of jobs.
-        start_date (str): The start date.
-        end_date (str): The end date.
 
     Returns:
         List[dict]: The list of validations.
@@ -123,14 +120,6 @@ def build_validations(
     for job in jobs:
         for run in job.runs:
             for data_asset_config in run.data_assets:
-                if "{start_date}" in data_asset_config.query:
-                    data_asset_config.query = data_asset_config.query.format(
-                        start_date=f"{start_date}",
-                    )
-                if "{end_date}" in data_asset_config.query:
-                    data_asset_config.query = data_asset_config.query.format(
-                        end_date=f"{end_date}",
-                    )
                 # find asset with name, if not found then create one.
                 try:
                     data_asset = data_source.get_asset(data_asset_config.name)
@@ -162,15 +151,12 @@ def build_teams_noti_action(notify_on: str, webhook: str) -> ActionDict:
     return {
         "name": "send_teams_noti_on_validation_result",
         "action": {
-            "class_name": "CustomMicrosoftTeamsNotificationAction",
-            "module_name": "gx.plugins.custom_data_docs.actions.custom_ms_teams_notification_action",
+            "class_name": "MicrosoftTeamsNotificationAction",
             "notify_on": notify_on,
             "microsoft_teams_webhook": webhook,
-            "max_rows": 10,
-            "max_columns": 7,
             "renderer": {
-                "module_name": "gx.plugins.custom_data_docs.renderers.custom_ms_teams_notification_renderer",
-                "class_name": "CustomMicrosoftTeamsRenderer",
+                "module_name": "great_expectations.render.renderer.microsoft_teams_renderer",
+                "class_name": "MicrosoftTeamsRenderer",
             },
         },
     }
@@ -217,42 +203,31 @@ if __name__ == "__main__":
     env = settings.env
     project_path = settings.project_path
     webhook = args.webhook if args.webhook else settings.microsoft_teams_webhook
-    start_date = datetime.strptime(args.start_date, "%Y-%m-%d").date()
-    end_date = datetime.strptime(args.end_date, "%Y-%m-%d").date()
-    logger.info("Start date: %s", start_date)
-    logger.info("End date: %s", end_date)
     logger.info("Job name: %s", args.job_name)
     logger.info("Tags: %s", args.job_tags)
     logger.info("Using webhook: %s", webhook)
 
     try:
         context = load_context(project_path, runtime_environment={"ENV": env})
-        data_source = load_data_source(context, env)
+        data_source = load_data_source(context, "staging_postgres")
         if args.job_name:
             jobs = JobSelectorFactory.select_job(args.job_name)
-            validations = build_validations(
-                context, data_source, jobs, start_date, end_date
-            )
+            validations = build_validations(context, data_source, jobs)
             checkpoint_result = run_checkpoint(
                 context, args.job_name, validations, webhook
             )
         elif args.job_tags:
             tags_list = args.job_tags.split("-")
             jobs = JobSelectorFactory.select_job(tags_list)
-            validations = build_validations(
-                context, data_source, jobs, start_date, end_date
-            )
+            validations = build_validations(context, data_source, jobs)
             checkpoint_result = run_checkpoint(
                 context, args.job_tags, validations, webhook
             )
         else:
             raise Exception("No job name or tags provided")
         logger.info("result ----- %s", checkpoint_result)
-        # if not checkpoint_result.success:
-        #     raise Exception("Expectations are not met")
-        logger.info("Building data docs...")
-        context.build_data_docs()
-        logger.info("Data docs built")
+        if not checkpoint_result.success:
+            raise Exception("Expectations are not met")
 
     except InvalidExpectationConfigurationError as error:
         raise Exception("ERROR: " + error.message)

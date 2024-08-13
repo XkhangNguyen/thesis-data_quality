@@ -1,0 +1,6 @@
+name: nhatot_daily
+runs:
+  - data_assets:
+    - nhatot_house_info.just_scraped
+    suite: check_null_value_suite
+tags: [daily-nhatot]

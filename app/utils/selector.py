@@ -19,9 +19,9 @@ def select_asset(fname: str) -> DataAsset:
     Raises:
         Exception: If the data asset with the given filename is not found.
     """
-    sub_folder, tbl_name, asset_name = fname.split(".")
+    tbl_name, asset_name = fname.split(".")
     path = os.path.join(
-        settings.project_path, "resources/data_assets", sub_folder, tbl_name + ".yml"
+        settings.project_path, "resources/data_assets", tbl_name + ".yml"
     )
     assets = yaml.safe_load(open(path))["data_assets"]
     for asset in assets:
