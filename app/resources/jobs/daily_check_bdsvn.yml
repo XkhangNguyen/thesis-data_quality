@@ -3,4 +3,4 @@ runs:
   - data_assets:
     - bdsvn_house_info.just_scraped
     suite: check_null_value_suite
-tags: [daily-bdsvn]
+tags: [daily,bdsvn]

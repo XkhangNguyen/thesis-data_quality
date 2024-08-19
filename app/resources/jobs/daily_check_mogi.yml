@@ -3,4 +3,4 @@ runs:
   - data_assets:
     - mogi_house_info.just_scraped
     suite: check_null_value_suite
-tags: [daily-mogi]
+tags: [daily,mogi]
