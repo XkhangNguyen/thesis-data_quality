@@ -1,0 +1,6 @@
+name: phongtro123_daily
+runs:
+  - data_assets:
+    - phongtro123_house_info.just_scraped
+    suite: check_null_value_suite
+tags: [daily,phongtro123]

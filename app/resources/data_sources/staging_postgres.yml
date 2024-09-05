@@ -1,3 +1,4 @@
 name: staging_postgres
 type: sql
-connection_string: postgresql://stagingDB:thesis9050Khang@host.docker.internal:6001/thesis
+# connection_string: postgresql://stagingDB:thesis9050Khang@host.docker.internal:6001/thesis
+connection_string: postgresql://postgres:admin@host.docker.internal:5432/house-data
